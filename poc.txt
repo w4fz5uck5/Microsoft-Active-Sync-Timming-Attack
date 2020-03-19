@@ -1,3 +1,6 @@
+Date: 03/19/2020
+Author: github.com/w4fz5uck5
+
 After some researching through a personal pentesting, i've realized that i was able to enumerate valid / invalid e-mails through old, famous and "patched" Microsoft-Server-ActiveSync vulnerability disclosed by @grimhacker.
 
 As we know, these kind of vulnerabilities are only possible because servers response delays, being possible to know if an user is valid or not through timing attacks.
